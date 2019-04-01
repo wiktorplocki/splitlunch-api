@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   name: { type: String },
-  debt: { type: Number },
+  balance: { type: Number },
   orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
 });
 
