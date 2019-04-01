@@ -13,8 +13,8 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   name: { type: String },
-  debt: { type: Number }
-  // orders: {  }
+  debt: { type: Number },
+  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
 });
 
 module.exports = mongoose.model('User', UserSchema);
