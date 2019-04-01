@@ -1,9 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const isAuth = require('./src/middleware/auth');
+const headers = require('./src/middleware/headers');
+
 const app = express();
 
 app.use(express.json());
+app.use(isAuth);
+app.use(headers);
 
 mongoose
   .connect(
