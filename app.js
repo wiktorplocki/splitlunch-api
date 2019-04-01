@@ -7,7 +7,7 @@ app.use(express.json());
 
 mongoose
   .connect(
-    `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}${
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}${
       process.env.MONGO_URL
     }`,
     { useNewUrlParser: true }
