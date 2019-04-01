@@ -6,15 +6,18 @@
     "node": ">=8.3.0"
   },
   "main": "index.js",
+  "repository": "github:wiktorplocki/splitlunch-api",
   "scripts": {
     "start": "nodemon app.js",
     "debug": "nodemon --inspect app.js",
+    "jsdoc": "jsdoc src -r -d docs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "node",
     "mongodb",
-    "express"
+    "express",
+    "now"
   ],
   "author": "Wiktor Płocki",
   "license": "ISC",
@@ -22,6 +25,7 @@
     "eslint": "^5.16.0",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-prettier": "^3.0.1",
+    "jsdoc": "^3.5.5",
     "nodemon": "^1.18.10",
     "prettier": "^1.16.4"
   },
