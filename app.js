@@ -12,7 +12,14 @@ const app = express();
 app.use(express.json());
 app.use(isAuth);
 app.use(headers);
-app.use('/', graphqlHttp({ schema, rootValue, graphiql: true }));
+app.use(
+  '/',
+  graphqlHttp({
+    schema,
+    rootValue,
+    graphiql: process.env.NODE_ENV === 'development'
+  })
+);
 
 mongoose
   .connect(

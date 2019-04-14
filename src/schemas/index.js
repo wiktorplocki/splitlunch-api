@@ -53,18 +53,10 @@ module.exports = buildSchema(`
     price: Float!
   }
 
-  input OrderWithOrderItemInput {
-    order: ID
-    participant: ID
-    item: String!
-    price: Float!
-  }
-
   input OrderInput {
     name: String!
     description: String
     date: String!
-    details: [OrderWithOrderItemInput]
   }
 
   type RootQuery {
@@ -79,7 +71,6 @@ module.exports = buildSchema(`
   type RootMutation {
     createUser(userInput: UserInput): User
     createOrder(orderInput: OrderInput): Order!
-    createOrderWithoutDetails(orderInput: OrderInput): Order!
     createOrderItem(orderItemInput: OrderItemInput): OrderItem!
     deleteOrderItem(orderItemId: ID!): Order!
     joinOrder(orderId: ID!): Order!

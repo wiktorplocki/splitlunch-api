@@ -1,6 +1,6 @@
 const { Order, OrderItem } = require('../models/order');
 const User = require('../models/user');
-const { transformOrder } = require('./merge');
+const { transformOrder, transformOrderItem } = require('./merge');
 
 module.exports = {
   orderItems: async args => {
@@ -23,56 +23,25 @@ module.exports = {
       if (!order) {
         throw new Error('Order not found!');
       }
-      const user = await User.findById('5ca3a955b953381ccc9718a5'); // req.userId
+      const user = await User.findById(req.userId); // req.userId
       if (!user) {
         throw new Error('User not found!');
       }
       const orderItem = new OrderItem({
         item: args.orderItemInput.item,
         price: +args.orderItemInput.price,
-        participant: '5ca3a955b953381ccc9718a5',
+        participant: req.userId,
         order: transformOrder(order)
       });
       const orderItemResult = await orderItem.save();
-      order.details.push(orderItemResult);
-      order.sumTotal.set(order.sumTotal + orderItem.price);
-      await order.save();
-      return orderItemResult();
-    } catch (err) {
-      throw new Error(err);
-    }
-  },
-  createOrderWithOrderItem: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
-    try {
-      const user = await User.findById('5ca3a955b953381ccc9718a5'); // req.userId
-      if (!user) {
-        throw new Error('User not found!');
-      }
-      const order = new Order({
-        name: args.orderInput.name,
-        description: args.orderInput.description,
-        sumTotal: 0,
-        date: new Date(args.orderInput.date),
-        details: [],
-        participants: ['5ca3a955b953381ccc9718a5'],
-        creator: '5ca3a955b953381ccc9718a5'
+      await order.details.push(orderItemResult);
+      await order.updateOne({
+        sumTotal: Number.parseFloat(
+          (order.sumTotal += orderItemResult.price)
+        ).toFixed(2)
       });
-      args.orderInput.details.map(async item => {
-        const orderItem = new OrderItem({
-          ...item,
-          order, // transformOrder
-          participant: order.creator // transformUser
-        });
-        await order.details.push(orderItem);
-      });
-      await order.details.forEach(item =>
-        Number.parseFloat((order.sumTotal += item.price).toFixed(2))
-      );
       await order.save();
-      return transformOrder(order);
+      return transformOrderItem(orderItemResult);
     } catch (err) {
       throw new Error(err);
     }

@@ -1,6 +1,6 @@
 const DataLoader = require('dataloader');
 const User = require('../models/user');
-const Order = require('../models/order');
+const { Order, OrderItem } = require('../models/order');
 const { dateToString } = require('../helpers/date');
 
 const orderLoader = new DataLoader(orderIds => orders(orderIds));
@@ -12,6 +12,20 @@ const orders = async orderIds => {
   try {
     const orders = await Order.find({ _id: { $in: orderIds } });
     return orders.map(order => transformOrder(order));
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+const order = async orderId => {
+  try {
+    const foundOrder = await orderLoader.load(orderId.toString());
+    return {
+      ...foundOrder._doc,
+      _id: foundOrder.id,
+      date: dateToString(foundOrder._doc.date),
+      participants: () => userLoader.loadMany(foundOrder._doc.participants)
+    };
   } catch (err) {
     throw new Error(err);
   }
@@ -40,6 +54,15 @@ const user = async userId => {
   }
 };
 
+const orderItems = async orderItemIds => {
+  try {
+    const orderItems = await OrderItem.find({ _id: { $in: orderItemIds } });
+    return orderItems.map(orderItem => transformOrderItem(orderItem));
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 const transformOrder = order => {
   return {
     ...order._doc,
@@ -47,8 +70,20 @@ const transformOrder = order => {
     creator: user.bind(this, order.creator),
     date: dateToString(order._doc.date),
     participants: users.bind(this, order.participants),
+    details: orderItems.bind(this, order.details),
     createdAt: dateToString(order._doc.createdAt),
     updatedAt: dateToString(order._doc.updatedAt)
+  };
+};
+
+const transformOrderItem = orderItem => {
+  return {
+    ...orderItem._doc,
+    _id: orderItem.id,
+    order: order.bind(this, orderItem.order),
+    participant: user.bind(this, orderItem.participant),
+    createdAt: dateToString(orderItem._doc.createdAt),
+    updatedAt: dateToString(orderItem._doc.updatedAt)
   };
 };
 
@@ -62,4 +97,4 @@ const transformUser = user => {
   };
 };
 
-module.exports = { transformOrder, transformUser };
+module.exports = { transformOrder, transformOrderItem, transformUser };

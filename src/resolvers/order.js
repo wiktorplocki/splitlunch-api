@@ -20,61 +20,42 @@ module.exports = {
     }
   },
   createOrder: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
-    const order = new Order({
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
+    const order = await new Order({
       name: args.orderInput.name,
       description: args.orderInput.description,
       date: new Date(args.orderInput.date),
       details: [],
-      participants: ['5ca3a955b953381ccc9718a5'], // req.userId
-      creator: '5ca3a955b953381ccc9718a5'
+      participants: [req.userId], // req.userId
+      creator: req.userId
     });
     let createdOrder;
     try {
       const result = await order.save();
       createdOrder = transformOrder(result);
-      const foundUser = await User.findById('5ca3a955b953381ccc9718a5');
+      const foundUser = await User.findById(req.userId);
       if (!foundUser) {
         throw new Error('User not found!');
       }
       foundUser.orders.push(order);
       await foundUser.save();
-      return createdOrder;
-    } catch (err) {
-      throw new Error(err);
-    }
-  },
-  createOrderWithoutDetails: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
-    const order = new Order({
-      name: args.orderInput.name,
-      description: args.orderInput.description,
-      date: new Date(args.orderInput.date),
-      details: [],
-      participants: ['5ca3a955b953381ccc9718a5'], // req.userId
-      creator: '5ca3a955b953381ccc9718a5'
-    });
-    try {
-      const result = await order.save();
-      return transformOrder(result);
+      return transformOrder(createdOrder);
     } catch (err) {
       throw new Error(err);
     }
   },
   joinOrder: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
     try {
-      const foundUser = await User.findById('5ca3a955b953381ccc9718a5'); // req.userId
+      const foundUser = await User.findById(req.userId); // req.userId
       if (!foundUser) {
         throw new Error('User not found!');
       }
-      const foundOrder = await Order.findById(args.orderInput.id);
+      const foundOrder = await Order.findById(args.orderId);
       if (!foundOrder) {
         throw new Error('Order not found!');
       }
@@ -88,15 +69,15 @@ module.exports = {
     }
   },
   leaveOrder: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
     try {
-      const foundOrder = await Order.findById(args.orderId); // orderInput.id
+      const foundOrder = await Order.findById(args.orderId);
       if (!foundOrder) {
         throw new Error('Order not found!');
       }
-      const foundUser = await User.findById('5ca3a955b953381ccc9718a5'); // req.id
+      const foundUser = await User.findById(req.userId); // req.id
       if (!foundUser) {
         throw new Error('User not found!');
       }
@@ -113,15 +94,15 @@ module.exports = {
     }
   },
   cancelOrder: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
     try {
       const foundOrder = await Order.findById(args.orderId);
       if (!foundOrder) {
         throw new Error('Order not found!');
       }
-      const foundUser = await User.findById('5ca3a955b953381ccc9718a5'); // req.userId
+      const foundUser = await User.findById(req.userId); // req.userId
       if (!foundUser) {
         throw new Error('User not found!');
       }
@@ -134,30 +115,33 @@ module.exports = {
     }
   },
   finalizeOrder: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error('Unauthorized!');
-    // }
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
     try {
       const foundOrder = await Order.findById(args.orderId);
       if (!foundOrder) {
         throw new Error('Order not found!');
       }
+      if (foundOrder.finalized) {
+        throw new Error('Order is already finalized!');
+      }
+      const highestDebt = await User.findOne({
+        orders: { $in: foundOrder.id }
+      }).sort('balance');
       for (const item of foundOrder.details) {
-        const foundParticipant = await User.findById(item.participant);
-        if (!foundParticipant) {
-          throw new Error('User not found!');
-        }
-        if (foundParticipant.equals(foundOrder.creator)) {
-          await foundParticipant.updateOne({
+        const participant = await User.findById(item.participant._id);
+        if (!item.participant.equals(highestDebt.id)) {
+          await participant.updateOne({
             balance: Number.parseFloat(
-              (foundParticipant.balance += item.price).toFixed(2)
-            )
+              participant.balance - item.price
+            ).toFixed(2)
           });
         } else {
-          await foundParticipant.updateOne({
+          await highestDebt.updateOne({
             balance: Number.parseFloat(
-              (foundParticipant.balance += item.price).toFixed(2)
-            )
+              highestDebt.balance + foundOrder.sumTotal
+            ).toFixed(2)
           });
         }
       }
