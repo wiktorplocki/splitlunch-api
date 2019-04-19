@@ -4,14 +4,17 @@ const mongoose = require('mongoose');
 
 const schema = require('./src/schemas');
 const rootValue = require('./src/resolvers');
+
 const isAuth = require('./src/middleware/auth');
 const headers = require('./src/middleware/headers');
+const helmet = require('helmet');
 
 const app = express();
 
 app.use(express.json());
 app.use(isAuth);
 app.use(headers);
+app.use(helmet);
 app.use(
   '/',
   graphqlHttp({
