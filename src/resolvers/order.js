@@ -151,5 +151,24 @@ module.exports = {
     } catch (err) {
       throw new Error(err);
     }
+  },
+  archiveOrder: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
+    try {
+      const foundOrder = await Order.findById(args.orderId);
+      if (!foundOrder) {
+        throw new Error('Order not found!');
+      }
+      if (foundOrder.archived) {
+        throw new Error('Order already archived!');
+      }
+      await foundOrder.updateOne({ archived: true });
+      const result = await foundOrder.save();
+      return transformOrder(result);
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 };
