@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(isAuth);
 app.use(headers);
-app.use(helmet);
+app.use(helmet());
 app.use(
   '/',
   graphqlHttp({
