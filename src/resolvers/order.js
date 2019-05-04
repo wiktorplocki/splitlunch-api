@@ -164,6 +164,9 @@ module.exports = {
       if (foundOrder.finalized) {
         throw new Error('Order is already finalized!');
       }
+      if (foundOrder.archived) {
+        throw new Error('Order is already closed!');
+      }
       const highestDebt = await User.findOne({
         orders: { $in: foundOrder.id }
       }).sort('balance');

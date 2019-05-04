@@ -40,6 +40,13 @@ module.exports = buildSchema(`
     tokenExpiry: Int!
   }
 
+  type VerifiedToken {
+    userId: ID!
+    email: String!
+    iat: Int!
+    exp: Int!
+  }
+
   input UserInput {
     email: String!
     password: String!
@@ -76,6 +83,7 @@ module.exports = buildSchema(`
     joinOrder(orderId: ID!): Order!
     leaveOrder(orderId: ID!): Order!
     finalizeOrder(orderId: ID!): Order!
+    verifyToken(token: String!): VerifiedToken!
   }
 
   schema {

@@ -32,6 +32,7 @@
     "prettier": "^1.16.4"
   },
   "dependencies": {
+    "@playlyfe/gql": "^2.6.1",
     "bcrypt": "^3.0.5",
     "dataloader": "^1.4.0",
     "express": "^4.16.4",

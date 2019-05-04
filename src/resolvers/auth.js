@@ -87,5 +87,29 @@ module.exports = {
       }
     );
     return { userId: user.id, token, tokenExpiry: 24 };
+  },
+  /**
+   * Verify a JWT token,
+   * @param {string} token The token to verify.
+   * @returns {string | boolean} The validated token
+   */
+  verifyToken: async ({ token }) => {
+    try {
+      const isValid = await jwt.verify(token, process.env.JWT_SECRET);
+      if (!isValid) {
+        throw new Error('Token not found!');
+      }
+      if (Math.floor(Date.now() / 1000) > isValid.exp) {
+        throw new jwt.TokenExpiredError(
+          `Token expired at ${new Date(
+            isValid.exp * 1000
+          ).toLocaleDateString()}`,
+          new Date(isValid.exp * 1000)
+        );
+      }
+      return isValid;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 };
