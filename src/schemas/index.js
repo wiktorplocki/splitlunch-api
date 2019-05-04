@@ -43,7 +43,6 @@ module.exports = buildSchema(`
   type VerifiedToken {
     userId: ID!
     email: String!
-    token: String!
     iat: Int!
     exp: Int!
   }
