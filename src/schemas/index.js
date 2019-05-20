@@ -72,7 +72,6 @@ module.exports = buildSchema(`
     orderItems(orderId: ID!): [OrderItem!]!
     users: [User!]!
     user(id: ID!): User!
-    login(email: String!, password: String!): AuthData!
   }
 
   type RootMutation {
@@ -83,6 +82,7 @@ module.exports = buildSchema(`
     joinOrder(orderId: ID!): Order!
     leaveOrder(orderId: ID!): Order!
     finalizeOrder(orderId: ID!): Order!
+    login(email: String!, password: String!): AuthData!
     verifyToken(token: String!): VerifiedToken!
   }
 
