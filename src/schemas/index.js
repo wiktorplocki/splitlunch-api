@@ -1,6 +1,4 @@
-const gql = require('graphql-tag');
-
-module.exports = gql`
+module.exports = `
   type User {
     _id: ID!
     email: String!
