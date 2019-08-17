@@ -1,4 +1,6 @@
-module.exports = `
+const { buildSchema } = require('graphql');
+
+module.exports = buildSchema(`
   type User {
     _id: ID!
     email: String!
@@ -80,7 +82,7 @@ module.exports = `
     joinOrder(orderId: ID!): Order!
     leaveOrder(orderId: ID!): Order!
     finalizeOrder(orderId: ID!): Order!
-    finalizeOrderWithParticipant(orderId: ID!, userId: ID!): O
+    finalizeOrderWithParticipant(orderId: ID!, userId: ID!): Order!
     login(email: String!, password: String!): AuthData!
     verifyToken(token: String!): VerifiedToken!
   }
@@ -89,4 +91,4 @@ module.exports = `
     query: RootQuery
     mutation: RootMutation
   }
-`;
+`);
