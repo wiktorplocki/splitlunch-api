@@ -83,7 +83,7 @@ module.exports = {
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
       {
-        expiresIn: '24h'
+        expiresIn: '1w'
       }
     );
     return { userId: user.id, token, tokenExpiry: 24 };

@@ -10,7 +10,6 @@ const headers = require('./src/middleware/headers');
 const helmet = require('helmet');
 
 const app = express();
-
 app.use(express.json());
 app.use(isAuth);
 app.use(headers);
@@ -24,21 +23,19 @@ app.use(
   })
 );
 
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}${
-      process.env.MONGO_URL
-    }`,
+try {
+  const success = mongoose.connect(
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}${process.env.MONGO_URL}`,
     { useNewUrlParser: true }
-  )
-  .then(() => {
+  );
+  if (success) {
     console.log('Connected to DB, attempting to launch the server...');
     app.listen(process.env.PORT, () =>
       console.log(`Server running at port ${process.env.PORT}`)
     );
-  })
-  .catch(err => {
-    throw new Error(err);
-  });
+  }
+} catch (error) {
+  throw new Error(error);
+}
 
 module.exports = app;

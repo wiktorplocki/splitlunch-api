@@ -114,44 +114,6 @@ module.exports = {
       throw new Error(err);
     }
   },
-  // finalizeOrder: async (args, req) => {
-  //   if (!req.isAuth) {
-  //     throw new Error('Unauthorized!');
-  //   }
-  //   try {
-  //     const foundOrder = await Order.findById(args.orderId);
-  //     if (!foundOrder) {
-  //       throw new Error('Order not found!');
-  //     }
-  //     // if (foundOrder.finalized) {
-  //     //   throw new Error('Order is already finalized!');
-  //     // }
-  //     const highestDebt = await User.findOne({
-  //       orders: { $in: foundOrder.id }
-  //     }).sort('balance');
-  //     for (const item of foundOrder.details) {
-  //       const participant = await User.findById(item.participant._id);
-  //       if (!item.participant.equals(highestDebt.id)) {
-  //         await participant.updateOne({
-  //           balance: Number.parseFloat(
-  //             participant.balance - item.price
-  //           ).toFixed(2)
-  //         });
-  //       } else {
-  //         await highestDebt.updateOne({
-  //           balance: Number.parseFloat(
-  //             highestDebt.balance + foundOrder.sumTotal
-  //           ).toFixed(2)
-  //         });
-  //       }
-  //     }
-  //     await foundOrder.updateOne({ finalized: true });
-  //     const result = await foundOrder.save();
-  //     return transformOrder(result);
-  //   } catch (err) {
-  //     throw new Error(err);
-  //   }
-  // },
   finalizeOrder: async (args, req) => {
     if (!req.isAuth) {
       throw new Error('Unauthorized!');
@@ -193,6 +155,56 @@ module.exports = {
       return transformOrder(result);
     } catch (err) {
       throw new Error(err);
+    }
+  },
+  finalizeOrderWithParticipant: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthorized!');
+    }
+    try {
+      const foundOrder = await Order.findById(args.orderId);
+      if (!foundOrder) {
+        throw new Error('Order not found!');
+      }
+      if (foundOrder.finalized) {
+        throw new Error('Order already finalized!');
+      }
+      if (foundOrder.archived) {
+        throw new Error('Order is already closed!');
+      }
+      const foundParticipant = await User.findById(args.userId);
+      if (!foundParticipant) {
+        throw new Error('User not found!');
+      }
+      const matchParticipant = await foundOrder.participants.find(user =>
+        user._id.equals(foundParticipant)
+      );
+      if (!matchParticipant) {
+        throw new Error('This user is not part of this order!');
+      }
+      await Promise.all(
+        foundOrder.details.map(async item => {
+          if (item.participant.equals(foundParticipant)) {
+            await foundParticipant.updateOne({
+              balance: Number.parseFloat(
+                foundParticipant.balance - item.price
+              ).toFixed(2)
+            });
+          } else {
+            const otherParticipants = await User.find({
+              id: !foundParticipant.id
+            });
+            await otherParticipants.update({
+              balance: Number.parseFloat(++item.price).toFixed(2)
+            });
+          }
+        })
+      );
+      await foundOrder.updateOne({ finalized: true });
+      const result = await foundOrder.save();
+      return transformOrder(result);
+    } catch (error) {
+      throw new Error(error);
     }
   },
   archiveOrder: async (args, req) => {

@@ -1,6 +1,6 @@
-const { buildSchema } = require('graphql');
+const gql = require('graphql-tag');
 
-module.exports = buildSchema(`
+module.exports = gql`
   type User {
     _id: ID!
     email: String!
@@ -82,6 +82,7 @@ module.exports = buildSchema(`
     joinOrder(orderId: ID!): Order!
     leaveOrder(orderId: ID!): Order!
     finalizeOrder(orderId: ID!): Order!
+    finalizeOrderWithParticipant(orderId: ID!, userId: ID!): O
     login(email: String!, password: String!): AuthData!
     verifyToken(token: String!): VerifiedToken!
   }
@@ -90,4 +91,4 @@ module.exports = buildSchema(`
     query: RootQuery
     mutation: RootMutation
   }
-`);
+`;
