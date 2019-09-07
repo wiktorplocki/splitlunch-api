@@ -20,6 +20,9 @@ app.use(
     schema,
     rootValue,
     graphiql: process.env.NODE_ENV === 'development'
+    // context: req => {
+    //   ({ user: req.user, isAuth: req.isAuth });
+    // }
   })
 );
 

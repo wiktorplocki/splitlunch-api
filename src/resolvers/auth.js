@@ -70,7 +70,7 @@ module.exports = {
    * @param {string} password The user's password
    * @return {object} The user's auth data. Includes token, token expiry time, and user id.
    */
-  login: async ({ email, password }) => {
+  login: async ({ email, password }, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       throw new Error('User does not exist!');
@@ -79,14 +79,21 @@ module.exports = {
     if (!isEqual) {
       throw new Error('Password is incorrect!');
     }
+    const refreshToken = jwt.sign(
+      { user: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '8d' }
+    );
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
       {
-        expiresIn: '1w'
+        expiresIn: '15m'
       }
     );
-    return { userId: user.id, token, tokenExpiry: 24 };
+    res.cookie('refresh-token', refreshToken, { expires: 60 * 60 * 24 * 7 });
+    res.cookie('access-token', token, { expires: 60 * 15 });
+    return { token };
   },
   /**
    * Verify a JWT token,
@@ -111,5 +118,9 @@ module.exports = {
     } catch (err) {
       throw new Error(err);
     }
+  },
+  me: async ({ token }, _, __) => {
+    console.log('first', _);
+    console.log('second', __);
   }
 };

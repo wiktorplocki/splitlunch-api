@@ -72,6 +72,7 @@ module.exports = buildSchema(`
     orderItems(orderId: ID!): [OrderItem!]!
     users: [User!]!
     user(id: ID!): User!
+    me(token: String): User
   }
 
   type RootMutation {

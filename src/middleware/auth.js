@@ -11,28 +11,40 @@ const jwt = require('jsonwebtoken');
  * @param {function} next Next function call.
  */
 module.exports = (req, res, next) => {
-  const authHeader = req.get('Authorization');
-  if (!authHeader) {
-    req.isAuth = false;
-    return next();
+  const token = req.get('Authorization');
+  if (token) {
+    const { user } = jwt.verify(token, process.env.JWT_SECRET);
+    if (user) {
+      req.setHeader('user', user);
+      req.setHeader('isAuth', true);
+    }
   }
-  const token = authHeader.split(' ')[1];
-  if (!token || token === '') {
-    req.isAuth = false;
-    return next();
-  }
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (err) {
-    req.isAuth = false;
-    return next();
-  }
-  if (!decodedToken) {
-    req.isAuth = false;
-    return next();
-  }
-  req.isAuth = true;
-  req.userId = decodedToken.userId;
-  next();
 };
+// module.exports = (req, res, next) => {
+//   const authHeader = req.get('Authorization');
+//   if (!authHeader) {
+//     req.isAuth = false;
+//     return next();
+//   }
+//   const token = authHeader.split(' ')[1];
+//   if (!token || token === '') {
+//     req.isAuth = false;
+//     return next();
+//   }
+//   let decodedToken;
+//   try {
+//     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+//   } catch (err) {
+//     req.isAuth = false;
+//     return next();
+//   }
+//   if (!decodedToken) {
+//     req.isAuth = false;
+//     return next();
+//   }
+//   req.isAuth = true;
+//   req.userId = decodedToken.userId;
+//   res.set('Authorization', `Bearer ${decodedToken.token}`);
+//   console.log(res.headers);
+//   next();
+// };
