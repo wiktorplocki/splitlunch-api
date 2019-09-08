@@ -1,11 +1,8 @@
-const authResolver = require('./auth');
-const orderResolver = require('./order');
-const orderItemResolver = require('./orderItem');
+import { authQuery, authMutation } from './auth';
 
-const rootResolver = {
-  ...authResolver,
-  ...orderResolver,
-  ...orderItemResolver
+const resolvers = {
+  Query: { ...authQuery },
+  Mutation: { ...authMutation }
 };
 
-module.exports = rootResolver;
+export default resolvers;
