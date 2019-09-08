@@ -1,32 +1,33 @@
 {
   "env": {
-      "es6": true,
-      "node": true
+    "es6": true,
+    "node": true
   },
   "extends": ["eslint:recommended", "plugin:node/recommended"],
   "parserOptions": {
-      "ecmaVersion": 9,
-      "sourceType": "module"
+    "ecmaVersion": 11,
+    "sourceType": "module"
   },
   "plugins": ["prettier"],
   "rules": {
-      "prettier/prettier": "error",
-      "no-console": "off",
-      "indent": [
-          "error",
-          2
-      ],
-      "linebreak-style": [
-          "error",
-          "unix"
-      ],
-      "quotes": [
-          "error",
-          "single"
-      ],
-      "semi": [
-          "error",
-          "always"
-      ]
+    "node/no-unsupported-features/es-syntax": "off",
+    "prettier/prettier": "error",
+    "no-console": "off",
+    "indent": [
+      "error",
+      2
+    ],
+    "linebreak-style": [
+      "error",
+      "windows"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ]
   }
 }
