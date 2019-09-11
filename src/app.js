@@ -1,12 +1,13 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import { verify } from 'jsonwebtoken';
 
 import { typeDefs } from './typeDefs';
 import resolvers from './resolvers';
-import { createTokens } from './auth';
+import { createTokens } from './helpers/createTokens';
 import User from './models/user';
 
 const startServer = async () => {
@@ -24,6 +25,7 @@ const startServer = async () => {
   });
   const app = express();
   app.use(cookieParser());
+  app.use(helmet());
   app.use(async (req, res, next) => {
     const acccessToken = req.cookies['access-token'];
     const refreshToken = req.cookies['refresh-token'];
@@ -61,7 +63,7 @@ const startServer = async () => {
     next();
   });
 
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, authCookie });
   const dbConnection = await connect(
     process.env.MONGO_URL,
     {
