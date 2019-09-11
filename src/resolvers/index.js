@@ -1,8 +1,8 @@
-import { authQuery, authMutation } from './auth';
+import * as Auth from './auth';
 
 const resolvers = {
-  Query: { ...authQuery },
-  Mutation: { ...authMutation }
+  Query: { ...Auth.Query },
+  Mutation: { ...Auth.Mutation }
 };
 
 export default resolvers;

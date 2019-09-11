@@ -1,6 +1,6 @@
 import { sign } from 'jsonwebtoken';
 
-export const createTokens = user => {
+const createTokens = user => {
   const refreshToken = sign(
     { userId: user.id, count: user.count },
     process.env.REFRESH_TOKEN_SECRET,
@@ -14,3 +14,5 @@ export const createTokens = user => {
 
   return { refreshToken, accessToken };
 };
+
+export default createTokens;
