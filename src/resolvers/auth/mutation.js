@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { createTokens } from '../../helpers/createTokens';
+import createTokens from '../../helpers/createTokens';
 import User from '../../models/user';
 
 const Mutation = {

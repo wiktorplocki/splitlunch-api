@@ -49,8 +49,8 @@ export const typeDefs = gql`
   }
 
   type Query {
-    # orders: [Order!]!
-    # order(id: ID!): Order!
+    orders: [Order!]!
+    order(id: ID!): Order!
     # orderItems(orderId: ID!): [OrderItem!]!
     # users: [User!]
     # user(id: ID!): User
@@ -59,12 +59,13 @@ export const typeDefs = gql`
 
   type Mutation {
     # createUser(userInput: UserInput): User
-    # createOrder(OrderInput: OrderInput): Order!
+    createOrder(OrderInput: OrderInput): Order!
+    createOrderWithoutDetails(OrderInput: OrderInput): Order!
     # createOrderItem(orderItemInput: OrderItemInput): OrderInput!
     # deleteOrderItem(OrderItemId: ID!): Order!
-    # joinOrder(orderId: ID!): Order!
-    # leaveOrder(orderId: ID!): Order!
-    # finalizeOrder(orderId: ID!): Order!
+    joinOrder(orderId: ID!): Order!
+    leaveOrder(orderId: ID!): Order!
+    finalizeOrder(orderId: ID!): Order!
     # finalizeOrderWithParticipant(orderId: ID!, userId: ID!): Order!
     login(email: String!, password: String!): User!
     register(email: String!, password: String!): Boolean
