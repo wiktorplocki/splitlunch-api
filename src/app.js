@@ -63,7 +63,7 @@ const startServer = async () => {
     next();
   });
 
-  server.applyMiddleware({ app, authCookie });
+  server.applyMiddleware({ app });
   const dbConnection = await connect(
     process.env.MONGO_URL,
     {
