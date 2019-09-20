@@ -1,7 +1,7 @@
-import DataLoader from 'dataloader';
-import User from '../models/user';
-import { Order } from '../models/order';
-import dateToString from '../helpers/dateToString';
+const DataLoader = require('dataloader');
+const User = require('../models/user');
+const orderModels = require('../models/order');
+const dateToString = require('../helpers/dateToString');
 
 const orderLoader = new DataLoader(orderIds => orders(orderIds));
 const userLoader = new DataLoader(userIds =>
@@ -10,7 +10,7 @@ const userLoader = new DataLoader(userIds =>
 
 const orders = async orderIds => {
   try {
-    const orders = await Order.find({ _id: { $in: orderIds } });
+    const orders = await orderModels.Order.find({ _id: { $in: orderIds } });
     return orders.map(order => transformOrder(order));
   } catch (error) {
     throw new Error(error);
@@ -62,4 +62,4 @@ const transformUser = user => {
   };
 };
 
-export { transformOrder, transformUser };
+module.exports = { transformOrder, transformUser };

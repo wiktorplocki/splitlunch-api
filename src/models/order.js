@@ -1,10 +1,10 @@
-import { model, Schema } from 'mongoose';
+const mongoose = require('mongoose');
 
 const {
   Types: { ObjectId }
-} = Schema;
+} = mongoose.Schema;
 
-const OrderItemSchema = new Schema(
+const OrderItemSchema = new mongoose.Schema(
   {
     order: { type: ObjectId, ref: 'Order', required: true },
     participant: { type: ObjectId, ref: 'User', required: true },
@@ -14,7 +14,7 @@ const OrderItemSchema = new Schema(
   { timestamps: true }
 );
 
-const OrderSchema = new Schema(
+const OrderSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
@@ -29,7 +29,7 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-export default {
-  Order: model('Order', OrderSchema),
-  OrderItem: model('OrderItem', OrderItemSchema)
+module.exports = {
+  Order: mongoose.model('Order', OrderSchema),
+  OrderItem: mongoose.model('OrderItem', OrderItemSchema)
 };

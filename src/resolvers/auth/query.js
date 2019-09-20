@@ -1,4 +1,4 @@
-import User from '../../models/user';
+const User = require('../../models/user');
 
 const Query = {
   me: (_, __, { req }) => {
@@ -9,4 +9,4 @@ const Query = {
   }
 };
 
-export default Query;
+module.exports = Query;
