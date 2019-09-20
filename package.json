@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "Backend for Splitlunch",
   "engines": {
-    "node": ">=8.3.0"
+    "node": "10.x"
   },
   "main": "app.js",
   "scripts": {
-    "build": "babel src -d dist",
-    "start": "npm run build && node dist/app.js",
-    "dev": "nodemon --exec babel-node ./src/app.js",
+    "now-build": "npm start",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "jsdoc": "jsdoc src -r -d docs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "now && now alias"
@@ -31,10 +31,6 @@
   },
   "homepage": "https://github.com/wiktorplocki/splitlunch-api#readme",
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.6.1",
-    "@babel/preset-env": "^7.5.5",
     "eslint": "^6.3.0",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.0",

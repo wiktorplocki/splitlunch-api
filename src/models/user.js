@@ -1,10 +1,10 @@
-import { model, Schema } from 'mongoose';
+const mongoose = require('mongoose');
 
 const {
   Types: { ObjectId }
-} = Schema;
+} = mongoose.Schema;
 
-const UserSchema = new Schema({
+const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   name: { type: String },
@@ -13,4 +13,4 @@ const UserSchema = new Schema({
   count: { type: Number, default: 0 }
 });
 
-export default model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);

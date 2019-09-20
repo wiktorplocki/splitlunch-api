@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
-import createTokens from '../../helpers/createTokens';
-import User from '../../models/user';
+const bcrypt = require('bcrypt');
+const createTokens = require('../../helpers/createTokens');
+const User = require('../../models/user');
 
 const Mutation = {
   register: async (_, { email, password }) => {
@@ -42,4 +42,4 @@ const Mutation = {
   }
 };
 
-export default Mutation;
+module.exports = Mutation;

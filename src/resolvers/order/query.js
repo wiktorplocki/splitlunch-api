@@ -1,10 +1,10 @@
-import { Order } from '../../models/order';
-import { transformOrder } from '../../helpers/resolverTransforms';
+const orderModels = require('../../models/order');
+const transformOrder = require('../../helpers/resolverTransforms');
 
 const Query = {
   orders: async () => {
     try {
-      const orders = await Order.find();
+      const orders = await orderModels.Order.find();
       return orders.map(order => transformOrder(order));
     } catch (error) {
       throw new Error(error);
@@ -12,7 +12,7 @@ const Query = {
   },
   order: async args => {
     try {
-      const foundOrder = await Order.findById(args.id);
+      const foundOrder = await orderModels.Order.findById(args.id);
       return transformOrder(foundOrder);
     } catch (error) {
       throw new Error(error);
@@ -20,4 +20,4 @@ const Query = {
   }
 };
 
-export default Query;
+module.exports = Query;

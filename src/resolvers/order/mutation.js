@@ -1,6 +1,6 @@
-import orderModels from '../../models/order';
-import User from '../../models/user';
-import { transformOrder } from '../../helpers/resolverTransforms';
+const orderModels = require('../../models/order');
+const User = require('../../models/user');
+const transformOrder = require('../../helpers/resolverTransforms');
 
 const Mutation = {
   createOrder: async (
@@ -22,7 +22,7 @@ const Mutation = {
     try {
       const result = await order.save();
       createdOrder = transformOrder(result);
-      const foundUser = await User.findById(req.userId);
+      const foundUser = await User.findById(userId);
       if (!foundUser) {
         throw new Error('User not found!');
       }
@@ -123,7 +123,7 @@ const Mutation = {
   //     throw new Error(error);
   //   }
   // },
-  finalizeOrder: async ({ orderId }, { isAuth, userId }) => {
+  finalizeOrder: async ({ orderId }) => {
     try {
       const foundOrder = await orderModels.Order.findById(orderId);
       if (!foundOrder) {
@@ -151,4 +151,4 @@ const Mutation = {
   }
 };
 
-export default Mutation;
+module.exports = Mutation;
