@@ -10,7 +10,6 @@ const { makeExecutableSchema } = require('graphql-tools');
 
 const typeDefs = require('./src/typeDefs');
 const resolvers = require('./src/resolvers');
-const addMiddlewareToResolver = require('./src/helpers/addMiddlewareToResolver');
 const isAuth = require('./src/middleware/isAuth');
 
 const User = require('./src/models/user');
@@ -60,7 +59,8 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
         user: encodeURIComponent(process.env.MONGO_USER),
         password: encodeURIComponent(process.env.MONGO_PASSWORD)
       },
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useFindAndModify: false
     }
   );
   if (dbConnection) {
