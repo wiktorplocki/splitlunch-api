@@ -9,8 +9,7 @@ const { applyMiddleware } = require('graphql-middleware');
 const { makeExecutableSchema } = require('graphql-tools');
 
 const typeDefs = require('./src/typeDefs');
-const resolvers = require('./src/resolvers');
-const isAuth = require('./src/middleware/isAuth');
+const { resolvers, resolverMiddlewares } = require('./src/resolvers');
 
 const User = require('./src/models/user');
 const {
@@ -65,20 +64,9 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
   );
   if (dbConnection) {
     console.log('DB connection successful!');
-    const resolverGuards = {
-      Query: {
-        bye: isAuth,
-        me: isAuth
-      },
-      Mutation: {
-        createOrder: isAuth,
-        createOrderItem: isAuth,
-        deleteOrderItem: isAuth
-      }
-    };
     const schema = applyMiddleware(
       makeExecutableSchema({ typeDefs, resolvers }),
-      resolverGuards
+      resolverMiddlewares
     );
     const playgroundSettings = {
       settings: {

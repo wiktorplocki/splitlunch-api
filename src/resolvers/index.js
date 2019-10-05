@@ -1,9 +1,22 @@
 const Auth = require('./auth');
 const Order = require('./order');
+const isAuth = require('../middleware/isAuth');
 
 const resolvers = {
   Query: { ...Auth.Query, ...Order.Query },
   Mutation: { ...Auth.Mutation, ...Order.Mutation }
 };
 
-module.exports = resolvers;
+const resolverMiddlewares = {
+  Query: {
+    bye: isAuth,
+    me: isAuth
+  },
+  Mutation: {
+    createOrder: isAuth,
+    createOrderItem: isAuth,
+    deleteOrderItem: isAuth
+  }
+};
+
+module.exports = { resolvers, resolverMiddlewares };
