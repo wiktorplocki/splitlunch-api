@@ -35,6 +35,11 @@ const typeDefs = gql`
     updatedAt: String!
   }
 
+  type LoginResponse {
+    accessToken: String
+    user: User
+  }
+
   input OrderItemInput {
     orderId: ID!
     participant: ID!
@@ -52,22 +57,23 @@ const typeDefs = gql`
     orders: [Order!]!
     order(id: ID!): Order!
     # orderItems(orderId: ID!): [OrderItem!]!
-    # users: [User!]
+    users: [User!]
     # user(id: ID!): User
     me: User
+    bye: String
   }
 
   type Mutation {
-    # createUser(userInput: UserInput): User
     createOrder(OrderInput: OrderInput): Order!
     createOrderWithoutDetails(OrderInput: OrderInput): Order!
-    # createOrderItem(orderItemInput: OrderItemInput): OrderInput!
-    # deleteOrderItem(OrderItemId: ID!): Order!
+    createOrderItem(orderItemInput: OrderItemInput): OrderItem!
+    deleteOrderItem(OrderItemId: ID!): Order!
     joinOrder(orderId: ID!): Order!
     leaveOrder(orderId: ID!): Order!
     finalizeOrder(orderId: ID!): Order!
     # finalizeOrderWithParticipant(orderId: ID!, userId: ID!): Order!
-    login(email: String!, password: String!): User!
+    login(email: String!, password: String!): LoginResponse
+    logout: Boolean!
     register(email: String!, password: String!): Boolean
     invalidateTokens: Boolean!
   }

@@ -1,11 +1,28 @@
 const User = require('../../models/user');
+const { verify } = require('jsonwebtoken');
 
 const Query = {
   me: (_, __, { req }) => {
-    if (!req.userId) {
+    const authorization = req.headers['authorization'];
+    if (!authorization) {
       return null;
     }
-    return User.findById(req.userId);
+
+    try {
+      const token = authorization.split(' ')[1];
+      const payload = verify(token, process.env.ACCESS_TOKEN_SECRET);
+      return User.findById(payload.userId);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  },
+  bye: (_, __, { payload }) => {
+    console.log(payload);
+    return `Your user id is: ${payload.userId}`;
+  },
+  users: () => {
+    return User.find();
   }
 };
 

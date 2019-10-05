@@ -1,37 +1,52 @@
-const bcrypt = require('bcrypt');
-const createTokens = require('../../helpers/createTokens');
+const { compare, hash } = require('bcrypt');
+const {
+  createAccessToken,
+  createRefreshToken
+} = require('../../helpers/createTokens');
+const sendRefreshToken = require('../../helpers/sendRefreshToken');
 const User = require('../../models/user');
 
 const Mutation = {
   register: async (_, { email, password }) => {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await new User({ email, password: hashedPassword });
-    return true;
+    const hashedPassword = await hash(password, 12);
+    try {
+      const foundUser = await User.findOne({ email });
+      if (foundUser) {
+        console.log('User already registered with this email!');
+        throw new Error('User already registered with this email!');
+      }
+      await new User({ email, password: hashedPassword }).save();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   },
   login: async (_, { email, password }, { res }) => {
     const user = await User.findOne({ email });
     if (!user) {
-      return null;
+      throw new Error('Could not find user!');
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await compare(password, user.password);
     if (!valid) {
-      return null;
+      throw new Error('Invaild password!');
     }
 
-    const { accessToken, refreshToken } = createTokens(user);
-
-    res
-      .cookie('access-token', accessToken, {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
-      })
-      .cookie('refresh-token', refreshToken, {
-        expires: new Date(Date.now() + 1000 * 60 * 15)
-      });
-    return user;
+    sendRefreshToken(res, createRefreshToken(user));
+    return {
+      accessToken: createAccessToken(user),
+      user
+    };
+  },
+  logout: async (_, __, { res }) => {
+    sendRefreshToken(res, '');
+    return true;
   },
   invalidateTokens: async (_, __, { req }) => {
-    if (!req.userId) return null;
+    if (!req.userId) {
+      return null;
+    }
     const user = await User.findOneAndUpdate(req.userId, {
       $inc: { count: 1 }
     }).exec();

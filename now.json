@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "name": "splitlunch-api",
+  "alias": "splitlunch-api.now.sh",
+  "builds": [
+    { "src": "app.js", "use": "@now/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/app.js", "methods": ["GET", "POST"] },
+    { "src": "/graphql", "dest": "/app.js", "methods": ["GET", "POST"] }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "JWT_SECRET": "@splitlunch_jwt_secret",
+    "ACCESS_TOKEN_SECRET": "@splitlunch_access_token",
+    "REFRESH_TOKEN_SECRET": "@splitlunch_refresh_token",
+    "MONGO_URL": "@splitlunch_mongo_url",
+    "MONGO_USER": "@splitlunch_mongo_user",
+    "MONGO_PASSWORD": "@splitlunch_mongo_password",
+    "PORT": "3000"
+  }
+}

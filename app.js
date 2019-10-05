@@ -1,99 +1,103 @@
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const mongoose = require('mongoose');
+const { connect } = require('mongoose');
 const { ApolloServer } = require('apollo-server-express');
-const jwt = require('jsonwebtoken');
+const { verify } = require('jsonwebtoken');
+const { applyMiddleware } = require('graphql-middleware');
+const { makeExecutableSchema } = require('graphql-tools');
 
 const typeDefs = require('./src/typeDefs');
 const resolvers = require('./src/resolvers');
-const createTokens = require('./src/helpers/createTokens');
+const addMiddlewareToResolver = require('./src/helpers/addMiddlewareToResolver');
+const isAuth = require('./src/middleware/isAuth');
+
 const User = require('./src/models/user');
+const {
+  createAccessToken,
+  createRefreshToken
+} = require('./src/helpers/createTokens');
+const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
-const startServer = async () => {
-  const playgroundSettings = {
-    settings: {
-      'request.credentials': 'include'
-    }
-  };
-
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => ({ req, res }),
-    playground: process.env.NODE_ENV === 'development' && playgroundSettings
-  });
+(async () => {
   const app = express();
-  app.use(cookieParser());
   app.use(helmet());
-  app.use(async (req, res, next) => {
-    const acccessToken = req.cookies['access-token'];
-    const refreshToken = req.cookies['refresh-token'];
-    if (!refreshToken && !acccessToken) {
-      return next();
-    } else if (!refreshToken) {
-      return next();
-    } else {
-      const data = jwt.verify(acccessToken, process.env.ACCESS_TOKEN_SECRET);
-      req.userId = data.userId;
-      next();
+  app.use(cors({ credentials: true }));
+  app.use(cookieParser(process.env.JWT_SECRET));
+  app.get('/', (req, res) => res.send('Hello!'));
+  app.post('/refresh_token', async (req, res) => {
+    const token = req.cookies.jid;
+    if (!token) {
+      return res.send({ ok: false, accessToken: '' });
     }
-    // if (!refreshToken && !acccessToken) {
-    //   return next();
-    // }
-    // try {
-    //   const data = jwt.verify(acccessToken, process.env.ACCESS_TOKEN_SECRET);
-    //   req.userId = data.userId;
-    //   return next();
-    //   // eslint-disable-next-line no-empty
-    // } catch {
-    //   console.log('');
-    // }
-    // if (!refreshToken) {
-    //   return next();
-    // }
 
-    let data;
-
+    let payload = null;
     try {
-      data = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-      req.userId = data.userId;
+      payload = verify(token, process.env.REFRESH_TOKEN_SECRET);
     } catch (error) {
-      return next();
+      console.log(error);
+      return res.send({ ok: false, accessToken: '' });
     }
 
-    const user = await User.findById(data.userId);
-    if (!user || user.count !== data.count) {
-      return next();
+    const user = await User.findById(payload.userId);
+    if (!user) {
+      return res.send({ ok: false, accessToken: '' });
+    }
+    if (user.tokenVersion !== payload.tokenVersion) {
+      return res.send({ ok: false, accessToken: '' });
     }
 
-    const tokens = createTokens(user);
-    res
-      .cookie('refresh-token', refreshToken)
-      .cookie('access-token', tokens.accessToken);
-    // eslint-disable-next-line require-atomic-updates
-    req.userId = user.id;
-    next();
+    sendRefreshToken(res, createRefreshToken(user));
+
+    return res.send({ ok: true, accessToken: createAccessToken(user) });
   });
 
-  server.applyMiddleware({ app });
-  const dbConnection = await mongoose.connect(process.env.MONGO_URL, {
-    auth: {
-      user: encodeURIComponent(process.env.MONGO_USER),
-      password: encodeURIComponent(process.env.MONGO_PASSWORD)
-    },
-    useNewUrlParser: true
-  });
+  const dbConnection = await connect(
+    process.env.MONGO_URL,
+    {
+      auth: {
+        user: encodeURIComponent(process.env.MONGO_USER),
+        password: encodeURIComponent(process.env.MONGO_PASSWORD)
+      },
+      useNewUrlParser: true
+    }
+  );
   if (dbConnection) {
-    console.log('Connected to DB, attempting to connect to the server...');
-    app.listen({ port: process.env.PORT }, () => {
-      console.log(
-        `Server launched at http://localhost:${process.env.PORT}${server.graphqlPath}`
-      );
+    console.log('DB connection successful!');
+    const resolverGuards = {
+      Query: {
+        bye: isAuth,
+        me: isAuth
+      },
+      Mutation: {
+        createOrder: isAuth,
+        createOrderItem: isAuth,
+        deleteOrderItem: isAuth
+      }
+    };
+    const schema = applyMiddleware(
+      makeExecutableSchema({ typeDefs, resolvers }),
+      resolverGuards
+    );
+    const playgroundSettings = {
+      settings: {
+        'request.credentials': 'include'
+      }
+    };
+    const apolloServer = new ApolloServer({
+      schema,
+      context: ({ req, res }) => ({ req, res }),
+      playground: process.env.NODE_ENV === 'development' && playgroundSettings
     });
-  } else {
-    throw new Error('Error establishing DB connection!');
-  }
-};
+    apolloServer.applyMiddleware({ app, cors: true });
 
-startServer();
+    app.listen({ port: process.env.PORT }, () =>
+      console.log(
+        `Express server listening on port ${process.env.PORT}, path ${apolloServer.graphqlPath}`
+      )
+    );
+  } else {
+    throw new Error('Error connecting to DB, aborting process!');
+  }
+})();

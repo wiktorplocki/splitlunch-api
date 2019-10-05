@@ -100,7 +100,7 @@ typings/
 
 # End of https://www.gitignore.io/api/node,visualstudiocode
 
-now.json
+now.dev.json
 nodemon.json
 
 docs/
