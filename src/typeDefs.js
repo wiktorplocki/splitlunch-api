@@ -8,7 +8,7 @@ const typeDefs = gql`
     name: String
     balance: Float
     orders: [Order!]
-    count: Int
+    tokenVersion: Int
   }
 
   type Order {
@@ -75,7 +75,7 @@ const typeDefs = gql`
     login(email: String!, password: String!): LoginResponse
     logout: Boolean!
     register(email: String!, password: String!): Boolean
-    invalidateTokens: Boolean!
+    invalidateRefreshTokens(userId: ID!): Boolean
   }
 `;
 

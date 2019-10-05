@@ -43,12 +43,9 @@ const Mutation = {
     sendRefreshToken(res, '');
     return true;
   },
-  invalidateTokens: async (_, __, { req }) => {
-    if (!req.userId) {
-      return null;
-    }
-    const user = await User.findOneAndUpdate(req.userId, {
-      $inc: { count: 1 }
+  invalidateRefreshTokens: async (_, { userId }) => {
+    const user = await User.findOneAndUpdate(userId, {
+      $inc: { tokenVersion: 1 }
     }).exec();
     if (!user) {
       return false;
