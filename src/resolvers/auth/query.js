@@ -17,6 +17,7 @@ const Query = {
       return null;
     }
   },
+  hello: () => 'hi!',
   bye: (_, __, { payload }) => {
     console.log(payload);
     return `Your user id is: ${payload.userId}`;

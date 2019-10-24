@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
-
 const {
-  Types: { ObjectId }
-} = mongoose.Schema;
+  Schema,
+  Schema: {
+    Types: { ObjectId }
+  },
+  model
+} = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   email: {
     type: String,
     validate: {
@@ -24,4 +26,4 @@ const UserSchema = new mongoose.Schema({
   tokenVersion: { type: Number, default: 0 }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = model('User', UserSchema);

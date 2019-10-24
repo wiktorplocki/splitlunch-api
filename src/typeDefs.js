@@ -60,6 +60,7 @@ const typeDefs = gql`
     users: [User!]
     # user(id: ID!): User
     me: User
+    hello: String
     bye: String
   }
 
