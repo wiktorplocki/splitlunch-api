@@ -21,9 +21,14 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 (async () => {
   const app = express();
   app.use(helmet());
-  app.use(cors({ credentials: true }));
+  app.use(
+    cors({
+      credentials: true,
+      origin: [process.env.CLIENT_URL, process.env.API_URL]
+    })
+  );
   app.use(cookieParser(process.env.JWT_SECRET));
-  app.get('/', (req, res) => res.send('Hello!'));
+  app.get('/', (_req, res) => res.send('Hello!'));
   app.post('/refresh_token', async (req, res) => {
     const token = req.cookies.jid;
     if (!token) {
@@ -78,7 +83,7 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
       context: ({ req, res }) => ({ req, res }),
       playground: process.env.NODE_ENV === 'development' && playgroundSettings
     });
-    apolloServer.applyMiddleware({ app, cors: true });
+    apolloServer.applyMiddleware({ app, cors: false });
 
     app.listen({ port: process.env.PORT }, () =>
       console.log(

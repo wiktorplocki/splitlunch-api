@@ -17,6 +17,8 @@
     "MONGO_URL": "@splitlunch_mongo_url",
     "MONGO_USER": "@splitlunch_mongo_user",
     "MONGO_PASSWORD": "@splitlunch_mongo_password",
+    "API_URL": "@splitlunch_prod_url",
+    "CLIENT_URL": "@splitlunch_client_url",
     "PORT": "3000"
   }
 }
