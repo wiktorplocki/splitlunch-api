@@ -27,7 +27,7 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
       origin: [process.env.CLIENT_URL, process.env.API_URL]
     })
   );
-  app.use(cookieParser(process.env.JWT_SECRET));
+  app.use('/refresh_token', cookieParser(process.env.JWT_SECRET));
   app.get('/', (_req, res) => res.send('Hello!'));
   app.post('/refresh_token', async (req, res) => {
     const token = req.cookies.jid;

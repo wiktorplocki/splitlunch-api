@@ -1,8 +1,9 @@
 const User = require('../../models/user');
+const { transformUser } = require('../../helpers/resolverTransforms');
 const { verify } = require('jsonwebtoken');
 
 const Query = {
-  me: (_, __, { req }) => {
+  me: (_parent, _args, { req }) => {
     const authorization = req.headers['authorization'];
     if (!authorization) {
       return null;
@@ -18,13 +19,12 @@ const Query = {
     }
   },
   hello: () => 'hi!',
-  bye: (_, __, { payload }) => {
+  bye: (_parent, _args, { payload }) => {
     console.log(payload);
     return `Your user id is: ${payload.userId}`;
   },
-  users: () => {
-    return User.find();
-  }
+  users: () => User.find(),
+  user: async (_parent, { id }) => transformUser(await User.findById(id))
 };
 
 module.exports = Query;

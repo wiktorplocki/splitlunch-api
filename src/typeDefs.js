@@ -58,7 +58,7 @@ const typeDefs = gql`
     order(id: ID!): Order!
     # orderItems(orderId: ID!): [OrderItem!]!
     users: [User!]
-    # user(id: ID!): User
+    user(id: ID!): User
     me: User
     hello: String
     bye: String

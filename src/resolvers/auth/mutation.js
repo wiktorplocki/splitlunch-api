@@ -7,7 +7,7 @@ const sendRefreshToken = require('../../helpers/sendRefreshToken');
 const User = require('../../models/user');
 
 const Mutation = {
-  register: async (_, { email, password }) => {
+  register: async (_parent, { email, password }) => {
     const hashedPassword = await hash(password, 12);
     try {
       const foundUser = await User.findOne({ email });
@@ -22,7 +22,7 @@ const Mutation = {
       return false;
     }
   },
-  login: async (_, { email, password }, { res }) => {
+  login: async (_parent, { email, password }, { res }) => {
     const user = await User.findOne({ email });
     if (!user) {
       throw new Error('Could not find user!');
@@ -39,11 +39,11 @@ const Mutation = {
       user
     };
   },
-  logout: async (_, __, { res }) => {
+  logout: async (_parent, _args, { res }) => {
     sendRefreshToken(res, '');
     return true;
   },
-  invalidateRefreshTokens: async (_, { userId }) => {
+  invalidateRefreshTokens: async (_parent, { userId }) => {
     const user = await User.findOneAndUpdate(userId, {
       $inc: { tokenVersion: 1 }
     }).exec();
