@@ -20,11 +20,22 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
 (async () => {
   const app = express();
+  const allowedOrigins = [process.env.CLIENT_URL, process.env.API_URL];
   app.use(helmet());
   app.use(
     cors({
       credentials: true,
-      origin: [process.env.CLIENT_URL, process.env.API_URL]
+      origin: (origin, callback) => {
+        if (!origin) {
+          return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+          return callback(new Error('Not allowed by CORS!'), false);
+        }
+
+        return callback(null, true);
+      }
     })
   );
   app.use('/refresh_token', cookieParser(process.env.JWT_SECRET));
