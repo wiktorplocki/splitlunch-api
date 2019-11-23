@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const Sentry = require('@sentry/node');
 const { connect } = require('mongoose');
 const { ApolloServer } = require('apollo-server-express');
 const { verify } = require('jsonwebtoken');
@@ -19,9 +20,15 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
 (async () => {
   const app = express();
+  Sentry.init({ dsn: process.env.SENTRY_NODE_DSN });
+  app.use(Sentry.Handlers.requestHandler());
   app.use(helmet());
   app.use('/refresh_token', cookieParser(process.env.JWT_SECRET));
   app.get('/', (_req, res) => res.send('Hello!'));
+  app.get('/debug-sentry', (_req, res, next) => {
+    res.status(500);
+    throw new Error('My first Sentry error!');
+  });
   app.post('/refresh_token', async (req, res) => {
     const token = req.cookies.jid;
     if (!token) {
@@ -48,6 +55,17 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
     return res.send({ ok: true, accessToken: createAccessToken(user) });
   });
+
+  app.use(
+    Sentry.Handlers.errorHandler({
+      shouldHandleError(error) {
+        if (error.statusCode >= 400) {
+          return true;
+        }
+        return false;
+      }
+    })
+  );
 
   const dbConnection = await connect(
     process.env.MONGO_URL,

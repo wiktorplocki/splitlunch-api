@@ -32,6 +32,7 @@
       "MONGO_PASSWORD": "@splitlunch_mongo_password",
       "API_URL": "@splitlunch_prod_url",
       "CLIENT_URL": "@splitlunch_client_url",
+      "SENTRY_NODE_DSN": "https://9a7403fc46a543d1adaa32c0f9583860@sentry.io/1831836",
       "PORT": "3000"
     }
   },
