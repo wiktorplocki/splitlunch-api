@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { connect } = require('mongoose');
@@ -20,24 +19,7 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
 (async () => {
   const app = express();
-  const allowedOrigins = [process.env.CLIENT_URL, process.env.API_URL];
   app.use(helmet());
-  app.use(
-    cors({
-      credentials: true,
-      origin: (origin, callback) => {
-        if (!origin) {
-          return callback(null, true);
-        }
-
-        if (allowedOrigins.includes(origin)) {
-          return callback(new Error('Not allowed by CORS!'), false);
-        }
-
-        return callback(null, true);
-      }
-    })
-  );
   app.use('/refresh_token', cookieParser(process.env.JWT_SECRET));
   app.get('/', (_req, res) => res.send('Hello!'));
   app.post('/refresh_token', async (req, res) => {
@@ -94,7 +76,13 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
       context: ({ req, res }) => ({ req, res }),
       playground: process.env.NODE_ENV === 'development' && playgroundSettings
     });
-    apolloServer.applyMiddleware({ app, cors: false });
+    apolloServer.applyMiddleware({
+      app,
+      cors: {
+        origin: [process.env.CLIENT_URL],
+        credentials: true
+      }
+    });
 
     app.listen({ port: process.env.PORT }, () =>
       console.log(

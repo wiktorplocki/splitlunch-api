@@ -6,8 +6,8 @@
     { "src": "app.js", "use": "@now/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/app.js", "methods": ["GET", "POST"] },
-    { "src": "/graphql", "dest": "/app.js", "methods": ["GET", "POST"] }
+    { "src": "/(.*)", "dest": "/app.js", "methods": ["GET", "POST", "HEAD", "OPTIONS"], "headers": { "Access-Control-Allow-Origin": "@splitlunch_client_url", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Allow-Methods": "GET, POST, OPTIONS, HEAD", "allow": "GET, POST, OPTIONS, HEAD" } },
+    { "src": "/graphql", "dest": "/app.js", "methods": ["GET", "POST", "HEAD", "OPTIONS"], "headers": { "Access-Control-Allow-Origin": "@splitlunch_client_url", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Allow-Methods": "GET, POST, OPTIONS, HEAD", "allow": "GET, POST, OPTIONS, HEAD" } }
   ],
   "env": {
     "NODE_ENV": "production",
