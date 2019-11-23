@@ -60,8 +60,8 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
   app.use(
     Sentry.Handlers.errorHandler({
-      shouldHandleError(error) {
-        if (error.statusCode >= 400) {
+      shouldHandleError({ statusCode }) {
+        if (statusCode === 400 || statusCode > 401) {
           return true;
         }
         return false;
