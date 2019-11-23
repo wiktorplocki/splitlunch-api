@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const Sentry = require('@sentry/node');
@@ -20,15 +21,16 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 
 (async () => {
   const app = express();
+  const corsConfig = {
+    origin: [process.env.CLIENT_URL],
+    credentials: true
+  };
   Sentry.init({ dsn: process.env.SENTRY_NODE_DSN });
   app.use(Sentry.Handlers.requestHandler());
   app.use(helmet());
+  app.use(cors(corsConfig));
   app.use('/refresh_token', cookieParser(process.env.JWT_SECRET));
   app.get('/', (_req, res) => res.send('Hello!'));
-  app.get('/debug-sentry', (_req, res, next) => {
-    res.status(500);
-    throw new Error('My first Sentry error!');
-  });
   app.post('/refresh_token', async (req, res) => {
     const token = req.cookies.jid;
     if (!token) {
@@ -94,13 +96,7 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
       context: ({ req, res }) => ({ req, res }),
       playground: process.env.NODE_ENV === 'development' && playgroundSettings
     });
-    apolloServer.applyMiddleware({
-      app,
-      cors: {
-        origin: [process.env.CLIENT_URL],
-        credentials: true
-      }
-    });
+    apolloServer.applyMiddleware({ app, cors: corsConfig });
 
     app.listen({ port: process.env.PORT }, () =>
       console.log(
