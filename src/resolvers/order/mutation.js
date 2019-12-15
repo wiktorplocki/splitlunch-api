@@ -1,3 +1,7 @@
+const {
+  AuthenticationError,
+  UserInputError
+} = require('apollo-server-express');
 const orderModels = require('../../models/order');
 const User = require('../../models/user');
 const transformOrder = require('../../helpers/resolverTransforms');
@@ -38,7 +42,7 @@ const Mutation = {
     { isAuth, userId }
   ) => {
     if (!isAuth) {
-      throw new Error('Unauthorized!');
+      throw new AuthenticationError('Unauthorized!');
     }
     const order = new orderModels.Order({
       name,
@@ -52,12 +56,12 @@ const Mutation = {
       const result = await order.save();
       return transformOrder(result);
     } catch (error) {
-      throw new Error(error);
+      throw new UserInputError(error);
     }
   },
   joinOrder: async ({ orderInput: { id } }, { isAuth, userId }) => {
     if (!isAuth) {
-      throw new Error('Unauthorized!');
+      throw new AuthenticationError('Unauthorized!');
     }
     try {
       const foundUser = await User.findById(userId);
@@ -79,7 +83,7 @@ const Mutation = {
   },
   leaveOrder: async ({ orderId }, { isAuth, userId }) => {
     if (!isAuth) {
-      throw new Error('Unauthorized!');
+      throw new AuthenticationError('Unauthorized!');
     }
     try {
       const foundOrder = await orderModels.Order.findById(orderId);

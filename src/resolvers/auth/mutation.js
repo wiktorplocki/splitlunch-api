@@ -1,4 +1,5 @@
 const { compare, hash } = require('bcrypt');
+const { UserInputError } = require('apollo-server-express');
 const {
   createAccessToken,
   createRefreshToken
@@ -30,7 +31,7 @@ const Mutation = {
 
     const valid = await compare(password, user.password);
     if (!valid) {
-      throw new Error('Invaild password!');
+      throw new UserInputError('Invaild password!');
     }
 
     sendRefreshToken(res, createRefreshToken(user));
