@@ -56,6 +56,7 @@ const typeDefs = gql`
   type Query {
     orders: [Order!]!
     order(id: ID!): Order!
+    lastNumOrders(count: Int!): [Order]!
     # orderItems(orderId: ID!): [OrderItem!]!
     users: [User!]
     user(id: ID!): User
