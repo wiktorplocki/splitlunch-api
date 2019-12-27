@@ -18,11 +18,6 @@ const Query = {
       return null;
     }
   },
-  hello: () => 'hi!',
-  bye: (_parent, _args, { payload }) => {
-    console.log(payload);
-    return `Your user id is: ${payload.userId}`;
-  },
   users: () => User.find(),
   user: async (_parent, { id }) => transformUser(await User.findById(id))
 };

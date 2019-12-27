@@ -9,7 +9,6 @@ const resolvers = {
 
 const resolverMiddlewares = {
   Query: {
-    bye: isAuth,
     me: isAuth
   },
   Mutation: {

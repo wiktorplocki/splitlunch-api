@@ -1,5 +1,8 @@
 const { compare, hash } = require('bcrypt');
-const { UserInputError } = require('apollo-server-express');
+const {
+  UserInputError,
+  AuthenticationError
+} = require('apollo-server-express');
 const {
   createAccessToken,
   createRefreshToken
@@ -10,18 +13,12 @@ const User = require('../../models/user');
 const Mutation = {
   register: async (_parent, { email, password }) => {
     const hashedPassword = await hash(password, 12);
-    try {
-      const foundUser = await User.findOne({ email });
-      if (foundUser) {
-        console.log('User already registered with this email!');
-        throw new Error('User already registered with this email!');
-      }
-      await new User({ email, password: hashedPassword }).save();
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
+    const foundUser = await User.findOne({ email });
+    if (foundUser) {
+      throw new AuthenticationError('User already registered with this email!');
     }
+    await new User({ email, password: hashedPassword }).save();
+    return true;
   },
   login: async (_parent, { email, password }, { res }) => {
     const user = await User.findOne({ email });
