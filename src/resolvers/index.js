@@ -9,7 +9,8 @@ const resolvers = {
 
 const resolverMiddlewares = {
   Query: {
-    me: isAuth
+    me: isAuth,
+    lastNumOrders: isAuth
   },
   Mutation: {
     createOrder: isAuth,
