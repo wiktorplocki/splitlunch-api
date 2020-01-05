@@ -22,7 +22,8 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
 (async () => {
   const app = express();
   const corsConfig = {
-    origin: [process.env.CLIENT_URL],
+    origin:
+      process.env.NODE_ENV === 'development' ? ['*'] : [process.env.CLIENT_URL],
     credentials: true
   };
   Sentry.init({ dsn: process.env.SENTRY_NODE_DSN });
@@ -94,7 +95,8 @@ const sendRefreshToken = require('./src/helpers/sendRefreshToken');
     const apolloServer = new ApolloServer({
       schema,
       context: ({ req, res }) => ({ req, res }),
-      playground: process.env.NODE_ENV === 'development' && playgroundSettings
+      playground: process.env.NODE_ENV === 'development' && playgroundSettings,
+      introspection: process.env.NODE_ENV === 'development'
     });
     apolloServer.applyMiddleware({ app, cors: corsConfig });
 

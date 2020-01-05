@@ -102,6 +102,7 @@ typings/
 
 now.dev.json
 nodemon.json
+schema.json
 
 docs/
 
