@@ -1,6 +1,6 @@
 const DataLoader = require('dataloader');
 const User = require('../models/user');
-const orderModels = require('../models/order');
+const { Order } = require('../models/order');
 const dateToString = require('../helpers/dateToString');
 
 const orderLoader = new DataLoader(orderIds => orders(orderIds));
@@ -10,7 +10,7 @@ const userLoader = new DataLoader(userIds =>
 
 const orders = async orderIds => {
   try {
-    const orders = await orderModels.Order.find({ _id: { $in: orderIds } });
+    const orders = await Order.find({ _id: { $in: orderIds } });
     return orders.map(order => transformOrder(order));
   } catch (error) {
     throw new Error(error);
