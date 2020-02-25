@@ -51,12 +51,13 @@ const typeDefs = gql`
     name: String!
     description: String
     date: String!
+    details: [OrderItemInput]
   }
 
   type Query {
     orders: [Order!]!
     order(id: ID!): Order!
-    lastNumOrders(count: Int!): [Order]!
+    lastNumOrders(count: Int!, userId: ID): [Order]!
     # orderItems(orderId: ID!): [OrderItem!]!
     users: [User!]
     user(id: ID!): User
@@ -66,8 +67,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createOrder(OrderInput: OrderInput): Order!
-    createOrderWithoutDetails(OrderInput: OrderInput): Order!
+    createOrder(OrderInput: OrderInput): Order
     createOrderItem(orderItemInput: OrderItemInput): OrderItem!
     deleteOrderItem(OrderItemId: ID!): Order!
     joinOrder(orderId: ID!): Order!

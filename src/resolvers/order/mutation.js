@@ -2,61 +2,61 @@ const {
   AuthenticationError,
   UserInputError
 } = require('apollo-server-express');
+const { verify } = require('jsonwebtoken');
 const orderModels = require('../../models/order');
 const User = require('../../models/user');
-const transformOrder = require('../../helpers/resolverTransforms');
+const { transformOrder } = require('../../helpers/resolverTransforms');
 
 const Mutation = {
   createOrder: async (
-    { orderInput: { name, date, description } },
-    { isAuth, userId }
+    _parent,
+    { OrderInput: { name, date, description, details = [] } },
+    { req }
   ) => {
-    if (!isAuth) {
-      throw new Error('Unauthorized!');
+    const authorization = req.headers['authorization'];
+    if (!authorization) {
+      throw new AuthenticationError('No authorization header!');
     }
-    const order = new orderModels.Order({
-      name,
-      description,
-      date: new Date(date),
-      details: [],
-      participants: [userId],
-      creator: userId
-    });
-    let createdOrder;
+
     try {
-      const result = await order.save();
-      createdOrder = transformOrder(result);
-      const foundUser = await User.findById(userId);
+      const token = authorization.split(' ')[1];
+      const payload = verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!payload) {
+        throw new AuthenticationError('Token invalid!');
+      }
+
+      const order = await new orderModels.Order({
+        name,
+        description,
+        date: new Date(date),
+        details,
+        participants: [payload.userId],
+        creator: payload.userId
+      });
+
+      const foundUser = await User.findById(payload.userId);
       if (!foundUser) {
         throw new Error('User not found!');
       }
+
+      if (details.length > 0) {
+        details.map(async ({ item, price }) => {
+          const orderItem = await new orderModels.OrderItem({
+            orderId: order.id,
+            participant: foundUser.id,
+            item,
+            price
+          }).save();
+          order.details.push(orderItem);
+        });
+      }
+
       foundUser.orders.push(order);
       await foundUser.save();
-      return createdOrder;
+      return transformOrder(order);
     } catch (error) {
-      throw new Error(error);
-    }
-  },
-  createOrderWithoutDetails: async (
-    { orderInput: { name, date, description } },
-    { isAuth, userId }
-  ) => {
-    if (!isAuth) {
-      throw new AuthenticationError('Unauthorized!');
-    }
-    const order = new orderModels.Order({
-      name,
-      description,
-      date: new Date(date),
-      details: [],
-      participants: [userId],
-      creator: userId
-    });
-    try {
-      const result = await order.save();
-      return transformOrder(result);
-    } catch (error) {
-      throw new UserInputError(error);
+      console.log(error);
+      return null;
     }
   },
   joinOrder: async ({ orderInput: { id } }, { isAuth, userId }) => {
