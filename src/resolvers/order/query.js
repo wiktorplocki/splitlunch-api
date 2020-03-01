@@ -22,15 +22,22 @@ const Query = {
     try {
       const token = authorization.split(' ')[1];
       const payload = verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!userId && !payload) {
+        return [];
+      }
       const foundOrders = await Order.find({
         creator: userId || payload.userId
       })
         .sort('-createdAt')
         .limit(count)
         .exec();
+      if (!foundOrders) {
+        return [];
+      }
       return foundOrders;
     } catch (error) {
-      throw new Error(error);
+      console.log(error);
+      return [];
     }
   }
 };
